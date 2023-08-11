@@ -23,13 +23,13 @@ cryptography==3.3.1
     #   pyjwt
 idna==2.10
     # via requests
-msal-extensions==0.3.0
-    # via azure-identity
 msal==1.8.0
     # via
     #   azure-identity
     #   azure-kusto-data
     #   msal-extensions
+msal-extensions==0.3.0
+    # via azure-identity
 portalocker==1.7.1
     # via msal-extensions
 pycparser==2.20
@@ -52,5 +52,5 @@ six==1.15.0
     #   tenacity
 tenacity==6.3.1
     # via -r requirements.in
-urllib3==1.26.3
+urllib3==1.26.5
     # via requests
