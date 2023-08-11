@@ -14,7 +14,7 @@ certifi==2020.12.5
     # via requests
 cffi==1.14.4
     # via cryptography
-chardet==4.0.0
+charset-normalizer==3.2.0
     # via requests
 cryptography==3.3.1
     # via
@@ -23,13 +23,13 @@ cryptography==3.3.1
     #   pyjwt
 idna==2.10
     # via requests
-msal-extensions==0.3.0
-    # via azure-identity
 msal==1.8.0
     # via
     #   azure-identity
     #   azure-kusto-data
     #   msal-extensions
+msal-extensions==0.3.0
+    # via azure-identity
 portalocker==1.7.1
     # via msal-extensions
 pycparser==2.20
@@ -38,7 +38,7 @@ pyjwt[crypto]==1.7.1
     # via msal
 python-dateutil==2.8.1
     # via azure-kusto-data
-requests==2.25.1
+requests==2.31.0
     # via
     #   azure-core
     #   azure-kusto-data
