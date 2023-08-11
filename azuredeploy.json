@@ -1,0 +1,1385 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "kustoClusterName": {
+            "defaultValue": "[concat('azmetaade', uniqueString(resourceGroup().id, 'azmetaade'))]",
+            "type": "String",
+            "metadata": {
+                "description": "Globally unique name for the Kusto cluster. Lowercase letters and numbers. Start with letter. 4-22 characters."
+            }
+        },
+        "kustoDatabaseName": {
+            "defaultValue": "azmeta",
+            "type": "String",
+            "metadata": {
+                "description": "Name for the azmeta database in your Kusto cluster."
+            }
+        },
+        "storageAccountName": {
+            "defaultValue": "[concat('azmetasa', uniqueString(resourceGroup().id, 'azmetasa'))]",
+            "type": "String",
+            "metadata": {
+                "description": "Globally unique name for the storage account. Lowercase letters and numbers. 3-24 characters."
+            }
+        },
+        "dataFactoryName": {
+            "defaultValue": "[concat('azmetaadf', uniqueString(resourceGroup().id, 'azmetaadf'))]",
+            "type": "String",
+            "metadata": {
+                "description": "Globally unique name for the data factory. Alphanumerics and hyphens. Start and end with alphanumeric. 3-63 characters."
+            }
+        },
+        "preProduction": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Deploy for pre-production use. Uses development SKU for Azure Data Explorer."
+            }
+        },
+        "updating": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Set to true if redeploying the template. Data Factory trigger resources can not be redeployed while they are enabled."
+            }
+        },
+        "_artifactsLocation": {
+            "defaultValue": "https://github.com/wpbrown/azmeta-pipeline/releases/latest/download/",
+            "type": "string",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located including a trailing '/'"
+            }
+        },
+        "kustoIngestClientId": {
+            "type": "String",
+            "metadata": {
+                "description": "The client/app id (not object id) for the service principal that data factory will use to connect to Kusto."
+            }
+        },
+        "kustoIngestClientSecret": {
+            "type": "SecureString",
+            "metadata": {
+                "description": "The client secret for the service principal that data factory will use to connect to Kusto."
+            }
+        },
+        "deploymentIdentity": {
+            "type": "String",
+            "metadata": {
+                "description": "The resource id of the user-assigned managed identity resource to use during deployment."
+            }
+        }
+    },
+    "variables": {
+        "usageTableTranslator": {
+            "type": "TabularTranslator",
+            "mappings": [
+                {
+                    "source": {
+                        "name": "InvoiceSectionName",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "InvoiceSectionName",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "AccountName",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "AccountName",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "AccountOwnerId",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "AccountOwnerId",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "SubscriptionId",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "SubscriptionId",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "SubscriptionName",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "SubscriptionName",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "ResourceGroup",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "ResourceGroup",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "ResourceLocation",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "ResourceLocation",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "Date",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "Date",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "ProductName",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "ProductName",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "MeterCategory",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "MeterCategory",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "MeterSubCategory",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "MeterSubCategory",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "MeterId",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "MeterId",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "MeterName",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "MeterName",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "MeterRegion",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "MeterRegion",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "UnitOfMeasure",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "UnitOfMeasure",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "Quantity",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "Quantity",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "EffectivePrice",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "EffectivePrice",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "CostInBillingCurrency",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "CostInBillingCurrency",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "CostCenter",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "CostCenter",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "ConsumedService",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "ConsumedService",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "ResourceId",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "ResourceId",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "Tags",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "Tags",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "OfferId",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "OfferId",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "AdditionalInfo",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "AdditionalInfo",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "ServiceInfo1",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "ServiceInfo1",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "ServiceInfo2",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "ServiceInfo2",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "ResourceName",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "ResourceName",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "ReservationId",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "ReservationId",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "ReservationName",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "ReservationName",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "UnitPrice",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "UnitPrice",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "ProductOrderId",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "ProductOrderId",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "ProductOrderName",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "ProductOrderName",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "Term",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "Term",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "PublisherType",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "PublisherType",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "PublisherName",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "PublisherName",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "ChargeType",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "ChargeType",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "Frequency",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "Frequency",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "PricingModel",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "PricingModel",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "AvailabilityZone",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "AvailabilityZone",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "BillingAccountId",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "BillingAccountId",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "BillingAccountName",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "BillingAccountName",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "BillingCurrencyCode",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "BillingCurrencyCode",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "BillingPeriodStartDate",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "BillingPeriodStartDate",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "BillingPeriodEndDate",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "BillingPeriodEndDate",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "BillingProfileId",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "BillingProfileId",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "BillingProfileName",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "BillingProfileName",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "InvoiceSectionId",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "InvoiceSectionId",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "IsAzureCreditEligible",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "IsAzureCreditEligible",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "PartNumber",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "PartNumber",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "PayGPrice",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "PayGPrice",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "PlanName",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "PlanName",
+                        "type": "String"
+                    }
+                },
+                {
+                    "source": {
+                        "name": "ServiceFamily",
+                        "type": "String"
+                    },
+                    "sink": {
+                        "name": "ServiceFamily",
+                        "type": "String"
+                    }
+                }
+            ]
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Kusto/clusters",
+            "apiVersion": "2019-05-15",
+            "name": "[parameters('kustoClusterName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "[if(parameters('preProduction'), 'Dev(No SLA)_Standard_D11_v2', 'Standard_D11_v2')]",
+                "tier": "[if(parameters('preProduction'), 'Basic', 'Standard')]",
+                "capacity": "[if(parameters('preProduction'), '1', '2')]"
+            },
+            "properties": {
+                "enableDiskEncryption": false,
+                "enableStreamingIngest": false
+            }
+        },
+        {
+            "name": "[concat(parameters('kustoClusterName'), '/', parameters('kustoDatabaseName'))]",
+            "type": "Microsoft.Kusto/clusters/databases",
+            "apiVersion": "2019-05-15",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[parameters('kustoClusterName')]"
+            ],
+            "properties": {
+                "softDeletePeriodInDays": 1825,
+                "hotCachePeriodInDays": 90
+            }
+        },
+        {
+            "type": "Microsoft.Kusto/Clusters/Databases/principalAssignments",
+            "apiVersion": "2019-11-09",
+            "name": "[concat(parameters('kustoClusterName'), '/', parameters('kustoDatabaseName'), '/dfingestionsp')]",
+            "dependsOn": [
+                "[parameters('kustoDatabaseName')]"
+            ],
+            "properties": {
+                "principalId": "[parameters('kustoIngestClientId')]",
+                "role": "Admin",
+                "tenantId": "[subscription().tenantId]",
+                "principalType": "App"
+            }
+        },
+        {
+            "type": "Microsoft.Kusto/Clusters/Databases/principalAssignments",
+            "apiVersion": "2019-11-09",
+            "name": "[concat(parameters('kustoClusterName'), '/', parameters('kustoDatabaseName'), '/dfdeploysp')]",
+            "dependsOn": [
+                "[parameters('kustoDatabaseName')]"
+            ],
+            "properties": {
+                "principalId": "[reference(parameters('deploymentIdentity'), '2018-11-30').principalId]",
+                "role": "Admin",
+                "tenantId": "[subscription().tenantId]",
+                "principalType": "App"
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2019-10-01-preview",
+            "name": "initAzmetaDbSchema",
+            "location": "[resourceGroup().location]",
+            "kind": "AzureCLI",
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[parameters('deploymentIdentity')]": {}
+                }
+            },
+            "properties": {
+                "forceUpdateTag": "1",
+                "azCliVersion": "2.0.80",
+                "environmentVariables": [
+                    {
+                        "name": "AZMETA_CLUSTER",
+                        "value": "[reference(parameters('kustoClusterName'), '2019-05-15').uri]"
+                    },
+                    {
+                        "name": "AZMETA_DATABASE",
+                        "value": "[parameters('kustoDatabaseName')]"
+                    },
+                    {
+                        "name": "AZMETA_DB_INIT_URL",
+                        "value": "[concat(parameters('_artifactsLocation'), 'db_init.pyz')]"
+                    }
+                ],
+                "scriptContent": "curl -LO --retry-connrefused --retry 5 \"${AZMETA_DB_INIT_URL}\"; python3 db_init.pyz \"${AZMETA_CLUSTER}\" \"${AZMETA_DATABASE}\"",
+                "timeout": "PT30M",
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "P1D"
+            },
+            "dependsOn": [
+                "dfdeploysp"
+            ]
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": "[parameters('storageAccountName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "supportsHttpsTrafficOnly": true,
+                "accessTier": "[if(parameters('preProduction'), 'Hot', 'Cool')]"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccountName'), '/default/usage-final')]",
+            "dependsOn": [
+                "[parameters('storageAccountName')]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers/providers/roleAssignments",
+            "name": "[concat(parameters('storageAccountName'),'/default/usage-final/Microsoft.Authorization/', guid(resourceGroup().id, 'roleDfToCf'))]",
+            "apiVersion": "2018-07-01",
+            "properties": {
+                "principalId": "[reference(parameters('dataFactoryName'), '2018-06-01', 'Full').identity.principalId]",
+                "roleDefinitionId": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]"
+            },
+            "dependsOn": [
+                "usage-final",
+                "pipeline_ingest_usage_final"
+            ]
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccountName'), '/default/usage-preliminary')]",
+            "dependsOn": [
+                "[parameters('storageAccountName')]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers/providers/roleAssignments",
+            "name": "[concat(parameters('storageAccountName'),'/default/usage-preliminary/Microsoft.Authorization/', guid(resourceGroup().id, 'roleDfToCp'))]",
+            "apiVersion": "2018-07-01",
+            "properties": {
+                "principalId": "[reference(parameters('dataFactoryName'), '2018-06-01', 'Full').identity.principalId]",
+                "roleDefinitionId": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]"
+            },
+            "dependsOn": [
+                "usage-preliminary",
+                "pipeline_ingest_usage_preliminary"
+            ]
+        },
+        {
+            "name": "[parameters('dataFactoryName')]",
+            "apiVersion": "2018-06-01",
+            "type": "Microsoft.DataFactory/factories",
+            "location": "[resourceGroup().location]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+            }
+        },
+        {
+            "name": "[concat(parameters('dataFactoryName'), '/link_blob_azmeta_account')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [
+                ],
+                "type": "AzureBlobStorage",
+                "typeProperties": {
+                    "serviceEndpoint": "[reference(parameters('storageAccountName'), '2019-06-01').primaryEndpoints.blob]"
+                }
+            },
+            "dependsOn": [
+                "[parameters('dataFactoryName')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('dataFactoryName'), '/link_kusto_azmeta')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "type": "AzureDataExplorer",
+                "typeProperties": {
+                    "endpoint": "[reference(parameters('kustoClusterName'), '2019-05-15').uri]",
+                    "tenant": "[subscription().tenantId]",
+                    "servicePrincipalId": "[parameters('kustoIngestClientId')]",
+                    "servicePrincipalKey": {
+                        "type": "SecureString",
+                        "value": "[parameters('kustoIngestClientSecret')]"
+                    },
+                    "database": "[parameters('kustoDatabaseName')]"
+                }
+            },
+            "dependsOn": [
+                "[parameters('dataFactoryName')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('dataFactoryName'), '/dataset_kusto_usage_table')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "link_kusto_azmeta",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "Table": {
+                        "type": "string"
+                    }
+                },
+                "type": "AzureDataExplorerTable",
+                "schema": [
+                ],
+                "typeProperties": {
+                    "table": {
+                        "value": "@dataset().Table",
+                        "type": "Expression"
+                    }
+                }
+            },
+            "dependsOn": [
+                "link_kusto_azmeta"
+            ]
+        },
+        {
+            "name": "[concat(parameters('dataFactoryName'), '/dataset_blob_usage_incoming')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "link_blob_azmeta_account",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "Container": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobStorageLocation",
+                        "container": {
+                            "value": "@dataset().Container",
+                            "type": "Expression"
+                        }
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\"",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": [
+                ]
+            },
+            "dependsOn": [
+                "link_blob_azmeta_account"
+            ]
+        },
+        {
+            "name": "[concat(parameters('dataFactoryName'), '/dataset_blob_usage_compressed')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "link_blob_azmeta_account",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "BlobName": {
+                        "type": "string"
+                    },
+                    "Container": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobStorageLocation",
+                        "fileName": {
+                            "value": "@concat(dataset().BlobName, '.csv.gz')",
+                            "type": "Expression"
+                        },
+                        "folderPath": "archive",
+                        "container": {
+                            "value": "@dataset().Container",
+                            "type": "Expression"
+                        }
+                    },
+                    "columnDelimiter": ",",
+                    "compressionCodec": "gzip",
+                    "compressionLevel": "Optimal",
+                    "escapeChar": "\"",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": [
+                ]
+            },
+            "dependsOn": [
+                "link_blob_azmeta_account"
+            ]
+        },
+        {
+            "name": "[concat(parameters('dataFactoryName'), '/pipeline_ingest_usage_final')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "drop_old_preliminary_data",
+                        "type": "AzureDataExplorerCommand",
+                        "dependsOn": [
+                            {
+                                "activity": "copy_usage_from_archive_to_table",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 6,
+                            "retryIntervalInSeconds": 60,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "command": {
+                                "value": "@concat('.drop extents <| \n  .show table UsagePreliminary extents \n  | extend Tags = split(Tags, \"\\r\\n\")\n  | where set_has_element(Tags, \"', last(split(pipeline().parameters.BlobPath, '/')),'\")')",
+                                "type": "Expression"
+                            },
+                            "commandTimeout": "00:20:00"
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "link_kusto_azmeta",
+                            "type": "LinkedServiceReference"
+                        }
+                    },
+                    {
+                        "name": "copy_usage_from_archive_to_table",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "compress_incoming",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 6,
+                            "retryIntervalInSeconds": 60,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "DelimitedTextSource",
+                                "storeSettings": {
+                                    "type": "AzureBlobStorageReadSettings",
+                                    "recursive": true,
+                                    "enablePartitionDiscovery": false
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "AzureDataExplorerSink",
+                                "ingestionMappingName": "UsageMapping",
+                                "additionalProperties": {
+                                    "value": "@concat('{\"tags\":\"[\\\"', last(split(pipeline().parameters.BlobPath, '/')), '\\\", \\\"', pipeline().RunId, '\\\"]\"}')",
+                                    "type": "Expression"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": "[variables('usageTableTranslator')]"
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "dataset_blob_usage_compressed",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "BlobName": "@last(split(pipeline().parameters.BlobPath, '/'))",
+                                    "Container": "usage-final"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "dataset_kusto_usage_table",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "Table": "UsageIngest"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "compress_incoming",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 6,
+                            "retryIntervalInSeconds": 60,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "DelimitedTextSource",
+                                "storeSettings": {
+                                    "type": "AzureBlobStorageReadSettings",
+                                    "recursive": true,
+                                    "enablePartitionDiscovery": false,
+                                    "prefix": {
+                                        "value": "@{concat(pipeline().parameters.BlobPath, '/', pipeline().parameters.BlobName)}",
+                                        "type": "Expression"
+                                    }
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "DelimitedTextSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobStorageWriteSettings",
+                                    "copyBehavior": "MergeFiles"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextWriteSettings",
+                                    "quoteAllText": true,
+                                    "fileExtension": ".gz"
+                                }
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "dataset_blob_usage_incoming",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "Container": "usage-final"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "dataset_blob_usage_compressed",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "BlobName": {
+                                        "value": "@last(split(pipeline().parameters.BlobPath, '/'))",
+                                        "type": "Expression"
+                                    },
+                                    "Container": "usage-final"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "parameters": {
+                    "BlobPath": {
+                        "type": "string"
+                    },
+                    "BlobName": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [
+                ]
+            },
+            "dependsOn": [
+                "dataset_blob_usage_compressed",
+                "dataset_kusto_usage_table",
+                "dataset_blob_usage_incoming"
+            ]
+        },
+        {
+            "name": "[concat(parameters('dataFactoryName'), '/pipeline_ingest_usage_preliminary')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "copy_usage_to_table",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 6,
+                            "retryIntervalInSeconds": 60,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "DelimitedTextSource",
+                                "storeSettings": {
+                                    "type": "AzureBlobStorageReadSettings",
+                                    "recursive": true,
+                                    "enablePartitionDiscovery": false,
+                                    "prefix": {
+                                        "value": "@{concat(pipeline().parameters.BlobPath, '/', pipeline().parameters.BlobName)}",
+                                        "type": "Expression"
+                                    }
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "AzureDataExplorerSink",
+                                "ingestionMappingName": "UsagePreliminaryMapping",
+                                "additionalProperties": {
+                                    "value": "@concat('{\"tags\":\"[\\\"', last(split(pipeline().parameters.BlobPath, '/')), '\\\", \\\"drop-by:', pipeline().RunId, '\\\"]\"}')",
+                                    "type": "Expression"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": "[variables('usageTableTranslator')]"
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "dataset_blob_usage_incoming",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "Container": "usage-preliminary"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "dataset_kusto_usage_table",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "Table": "UsagePreliminaryIngest"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "drop_old_data",
+                        "type": "AzureDataExplorerCommand",
+                        "dependsOn": [
+                            {
+                                "activity": "copy_usage_to_table",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 6,
+                            "retryIntervalInSeconds": 60,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "command": {
+                                "value": "@concat('.drop extents <| \n  .show table UsagePreliminary extents \n  | extend Tags = split(Tags, \"\\r\\n\")\n  | where set_has_element(Tags, \"', last(split(pipeline().parameters.BlobPath, '/')),'\") and not(set_has_element(Tags, \"drop-by:', pipeline().RunId,'\"))')",
+                                "type": "Expression"
+                            },
+                            "commandTimeout": "00:20:00"
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "link_kusto_azmeta",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+
+                ],
+                "parameters": {
+                    "BlobPath": {
+                        "type": "string"
+                    },
+                    "BlobName": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [
+                ]
+            },
+            "dependsOn": [
+                "dataset_kusto_usage_table",
+                "dataset_blob_usage_incoming"
+            ]
+        },
+        {
+            "condition": "[not(parameters('updating'))]",
+            "name": "[concat(parameters('dataFactoryName'), '/trigger_usage_final_amortized')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "pipelines": [
+                    {
+                        "pipelineReference": {
+                            "referenceName": "pipeline_ingest_usage_final",
+                            "type": "PipelineReference"
+                        },
+                        "parameters": {
+                            "BlobPath": "@replace(trigger().outputs.body.folderPath, 'usage-final/', '')",
+                            "BlobName": "@trigger().outputs.body.fileName"
+                        }
+                    }
+                ],
+                "type": "BlobEventsTrigger",
+                "typeProperties": {
+                    "blobPathBeginsWith": "/usage-final/blobs/export/finalamortized",
+                    "blobPathEndsWith": ".csv",
+                    "ignoreEmptyBlobs": true,
+                    "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                    "events": [
+                        "Microsoft.Storage.BlobCreated"
+                    ]
+                }
+            },
+            "dependsOn": [
+                "pipeline_ingest_usage_final"
+            ]
+        },
+        {
+            "condition": "[not(parameters('updating'))]",
+            "name": "[concat(parameters('dataFactoryName'), '/trigger_usage_final_amortized_onetime')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "pipelines": [
+                    {
+                        "pipelineReference": {
+                            "referenceName": "pipeline_ingest_usage_final",
+                            "type": "PipelineReference"
+                        },
+                        "parameters": {
+                            "BlobPath": "@replace(trigger().outputs.body.folderPath, 'usage-final/', '')",
+                            "BlobName": "@trigger().outputs.body.fileName"
+                        }
+                    }
+                ],
+                "type": "BlobEventsTrigger",
+                "typeProperties": {
+                    "blobPathBeginsWith": "/usage-final/blobs/export/onetime",
+                    "blobPathEndsWith": ".csv",
+                    "ignoreEmptyBlobs": true,
+                    "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                    "events": [
+                        "Microsoft.Storage.BlobCreated"
+                    ]
+                }
+            },
+            "dependsOn": [
+                "pipeline_ingest_usage_final"
+            ]
+        },
+        {
+            "condition": "[not(parameters('updating'))]",
+            "name": "[concat(parameters('dataFactoryName'), '/trigger_usage_preliminary_amortized')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "pipelines": [
+                    {
+                        "pipelineReference": {
+                            "referenceName": "pipeline_ingest_usage_preliminary",
+                            "type": "PipelineReference"
+                        },
+                        "parameters": {
+                            "BlobPath": "@replace(trigger().outputs.body.folderPath, 'usage-preliminary/', '')",
+                            "BlobName": "@trigger().outputs.body.fileName"
+                        }
+                    }
+                ],
+                "type": "BlobEventsTrigger",
+                "typeProperties": {
+                    "blobPathBeginsWith": "/usage-preliminary/blobs/export/preliminaryamortized",
+                    "blobPathEndsWith": ".csv",
+                    "ignoreEmptyBlobs": true,
+                    "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                    "events": [
+                        "Microsoft.Storage.BlobCreated"
+                    ]
+                }
+            },
+            "dependsOn": [
+                "pipeline_ingest_usage_preliminary"
+            ]
+        },
+        {
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2019-10-01-preview",
+            "name": "startUsageTriggers",
+            "location": "[resourceGroup().location]",
+            "kind": "AzurePowerShell",
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[parameters('deploymentIdentity')]": {}
+                }
+            },
+            "properties": {
+                "forceUpdateTag": "1",
+                "azPowerShellVersion": "4.2",
+                "environmentVariables": [
+                    {
+                        "name": "AZMETA_RG",
+                        "value": "[resourceGroup().name]"
+                    },
+                    {
+                        "name": "AZMETA_DATAFACTORY",
+                        "value": "[parameters('dataFactoryName')]"
+                    },
+                    {
+                        "name": "AZMETA_TRIGGER_FINAL",
+                        "value": "trigger_usage_final_amortized"
+                    },
+                    {
+                        "name": "AZMETA_TRIGGER_FINAL_ONETIME",
+                        "value": "trigger_usage_final_amortized_onetime"
+                    },
+                    {
+                        "name": "AZMETA_TRIGGER_PRELIMINARY",
+                        "value": "trigger_usage_preliminary_amortized"
+                    }
+                ],
+                "scriptContent": "@($env:AZMETA_TRIGGER_FINAL, $env:AZMETA_TRIGGER_FINAL_ONETIME, $env:AZMETA_TRIGGER_PRELIMINARY) | ForEach-Object { Start-AzDataFactoryV2Trigger -Name $_ -ResourceGroupName $env:AZMETA_RG -DataFactoryName $env:AZMETA_DATAFACTORY -Force; }",
+                "timeout": "PT15M",
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "P1D"
+            },
+            "dependsOn": [
+                "trigger_usage_final_amortized",
+                "trigger_usage_preliminary_amortized",
+                "trigger_usage_final_amortized_onetime"
+            ]
+        }
+    ],
+    "outputs": {
+        "usageSubscription": {
+            "type": "string",
+            "value": "[subscription().subscriptionId]"
+        },
+        "usageResourceGroup": {
+            "type": "string",
+            "value": "[resourceGroup().name]"
+        },
+        "usageDataFactory": {
+            "type": "string",
+            "value": "[parameters('dataFactoryName')]"
+        },
+        "usageStorageAccount": {
+            "type": "string",
+            "value": "[parameters('storageAccountName')]"
+        },
+        "usageKustoCluster": {
+            "type": "string",
+            "value": "[parameters('kustoClusterName')]"
+        },
+        "usageKustoClusterUrl": {
+            "type": "string",
+            "value": "[reference(parameters('kustoClusterName'), '2019-05-15').uri]"
+        }
+    }
+}
