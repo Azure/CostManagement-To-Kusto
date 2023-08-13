@@ -16,6 +16,10 @@
                 "description": "Name for the azmeta database in your Kusto cluster."
             }
         },
+        "forceUpdateTag": {
+            "defaultValue": "[utcNow()]",
+            "type": "String"
+        },
         "storageAccountName": {
             "defaultValue": "[concat('azmetasa', uniqueString(resourceGroup().id, 'azmetasa'))]",
             "type": "String",
@@ -42,13 +46,6 @@
             "defaultValue": false,
             "metadata": {
                 "description": "Set to true if redeploying the template. Data Factory trigger resources can not be redeployed while they are enabled."
-            }
-        },
-        "_artifactsLocation": {
-            "defaultValue": "https://github.com/wpbrown/azmeta-pipeline/releases/latest/download/",
-            "type": "string",
-            "metadata": {
-                "description": "The base URI where artifacts required by this template are located including a trailing '/'"
             }
         },
         "kustoIngestClientId": {
@@ -595,7 +592,8 @@
                     }
                 }
             ]
-        }
+        },
+        "kqlScript":  "[concat('.create-merge table UsagePreliminaryIngest (InvoiceSectionName: string, AccountName: string, AccountOwnerId: string, SubscriptionId: string, SubscriptionName: string, ResourceGroup: string, ResourceLocation: string, Date: datetime, ProductName: string, MeterCategory: string, MeterSubCategory: string, MeterId: string, MeterName: string, MeterRegion: string, UnitOfMeasure: string, Quantity: decimal, EffectivePrice: decimal, CostInBillingCurrency: decimal, CostCenter: string, ConsumedService: string, ResourceId: string, Tags: string, OfferId: string, AdditionalInfo: dynamic, ServiceInfo1: string, ServiceInfo2: string, ResourceName: string, ReservationId: string, ReservationName: string, UnitPrice: decimal, ProductOrderId: string, ProductOrderName: string, Term: string, PublisherType: string, PublisherName: string, ChargeType: string, Frequency: string, PricingModel: string, AvailabilityZone: string, BillingAccountId: string, BillingAccountName: string, BillingCurrencyCode: string, BillingPeriodStartDate: datetime, BillingPeriodEndDate: datetime, BillingProfileId: string, BillingProfileName: string, InvoiceSectionId: string, IsAzureCreditEligible: string, PartNumber: string, PayGPrice: decimal, PlanName: string, ServiceFamily: string) \n .create-or-alter table UsagePreliminaryIngest ingestion csv mapping \"UsagePreliminaryMapping\" ```[{\"Name\":\"InvoiceSectionName\",\"DataType\":\"\",\"Ordinal\":\"0\",\"ConstValue\":null},{\"Name\":\"AccountName\",\"DataType\":\"\",\"Ordinal\":\"1\",\"ConstValue\":null},{\"Name\":\"AccountOwnerId\",\"DataType\":\"\",\"Ordinal\":\"2\",\"ConstValue\":null},{\"Name\":\"SubscriptionId\",\"DataType\":\"\",\"Ordinal\":\"3\",\"ConstValue\":null},{\"Name\":\"SubscriptionName\",\"DataType\":\"\",\"Ordinal\":\"4\",\"ConstValue\":null},{\"Name\":\"ResourceGroup\",\"DataType\":\"\",\"Ordinal\":\"5\",\"ConstValue\":null},{\"Name\":\"ResourceLocation\",\"DataType\":\"\",\"Ordinal\":\"6\",\"ConstValue\":null},{\"Name\":\"Date\",\"DataType\":\"\",\"Ordinal\":\"7\",\"ConstValue\":null},{\"Name\":\"ProductName\",\"DataType\":\"\",\"Ordinal\":\"8\",\"ConstValue\":null},{\"Name\":\"MeterCategory\",\"DataType\":\"\",\"Ordinal\":\"9\",\"ConstValue\":null},{\"Name\":\"MeterSubCategory\",\"DataType\":\"\",\"Ordinal\":\"10\",\"ConstValue\":null},{\"Name\":\"MeterId\",\"DataType\":\"\",\"Ordinal\":\"11\",\"ConstValue\":null},{\"Name\":\"MeterName\",\"DataType\":\"\",\"Ordinal\":\"12\",\"ConstValue\":null},{\"Name\":\"MeterRegion\",\"DataType\":\"\",\"Ordinal\":\"13\",\"ConstValue\":null},{\"Name\":\"UnitOfMeasure\",\"DataType\":\"\",\"Ordinal\":\"14\",\"ConstValue\":null},{\"Name\":\"Quantity\",\"DataType\":\"\",\"Ordinal\":\"15\",\"ConstValue\":null},{\"Name\":\"EffectivePrice\",\"DataType\":\"\",\"Ordinal\":\"16\",\"ConstValue\":null},{\"Name\":\"CostInBillingCurrency\",\"DataType\":\"\",\"Ordinal\":\"17\",\"ConstValue\":null},{\"Name\":\"CostCenter\",\"DataType\":\"\",\"Ordinal\":\"18\",\"ConstValue\":null},{\"Name\":\"ConsumedService\",\"DataType\":\"\",\"Ordinal\":\"19\",\"ConstValue\":null},{\"Name\":\"ResourceId\",\"DataType\":\"\",\"Ordinal\":\"20\",\"ConstValue\":null},{\"Name\":\"Tags\",\"DataType\":\"\",\"Ordinal\":\"21\",\"ConstValue\":null},{\"Name\":\"OfferId\",\"DataType\":\"\",\"Ordinal\":\"22\",\"ConstValue\":null},{\"Name\":\"AdditionalInfo\",\"DataType\":\"\",\"Ordinal\":\"23\",\"ConstValue\":null},{\"Name\":\"ServiceInfo1\",\"DataType\":\"\",\"Ordinal\":\"24\",\"ConstValue\":null},{\"Name\":\"ServiceInfo2\",\"DataType\":\"\",\"Ordinal\":\"25\",\"ConstValue\":null},{\"Name\":\"ResourceName\",\"DataType\":\"\",\"Ordinal\":\"26\",\"ConstValue\":null},{\"Name\":\"ReservationId\",\"DataType\":\"\",\"Ordinal\":\"27\",\"ConstValue\":null},{\"Name\":\"ReservationName\",\"DataType\":\"\",\"Ordinal\":\"28\",\"ConstValue\":null},{\"Name\":\"UnitPrice\",\"DataType\":\"\",\"Ordinal\":\"29\",\"ConstValue\":null},{\"Name\":\"ProductOrderId\",\"DataType\":\"\",\"Ordinal\":\"30\",\"ConstValue\":null},{\"Name\":\"ProductOrderName\",\"DataType\":\"\",\"Ordinal\":\"31\",\"ConstValue\":null},{\"Name\":\"Term\",\"DataType\":\"\",\"Ordinal\":\"32\",\"ConstValue\":null},{\"Name\":\"PublisherType\",\"DataType\":\"\",\"Ordinal\":\"33\",\"ConstValue\":null},{\"Name\":\"PublisherName\",\"DataType\":\"\",\"Ordinal\":\"34\",\"ConstValue\":null},{\"Name\":\"ChargeType\",\"DataType\":\"\",\"Ordinal\":\"35\",\"ConstValue\":null},{\"Name\":\"Frequency\",\"DataType\":\"\",\"Ordinal\":\"36\",\"ConstValue\":null},{\"Name\":\"PricingModel\",\"DataType\":\"\",\"Ordinal\":\"37\",\"ConstValue\":null},{\"Name\":\"AvailabilityZone\",\"DataType\":\"\",\"Ordinal\":\"38\",\"ConstValue\":null},{\"Name\":\"BillingAccountId\",\"DataType\":\"\",\"Ordinal\":\"39\",\"ConstValue\":null},{\"Name\":\"BillingAccountName\",\"DataType\":\"\",\"Ordinal\":\"40\",\"ConstValue\":null},{\"Name\":\"BillingCurrencyCode\",\"DataType\":\"\",\"Ordinal\":\"41\",\"ConstValue\":null},{\"Name\":\"BillingPeriodStartDate\",\"DataType\":\"\",\"Ordinal\":\"42\",\"ConstValue\":null},{\"Name\":\"BillingPeriodEndDate\",\"DataType\":\"\",\"Ordinal\":\"43\",\"ConstValue\":null},{\"Name\":\"BillingProfileId\",\"DataType\":\"\",\"Ordinal\":\"44\",\"ConstValue\":null},{\"Name\":\"BillingProfileName\",\"DataType\":\"\",\"Ordinal\":\"45\",\"ConstValue\":null},{\"Name\":\"InvoiceSectionId\",\"DataType\":\"\",\"Ordinal\":\"46\",\"ConstValue\":null},{\"Name\":\"IsAzureCreditEligible\",\"DataType\":\"\",\"Ordinal\":\"47\",\"ConstValue\":null},{\"Name\":\"PartNumber\",\"DataType\":\"\",\"Ordinal\":\"48\",\"ConstValue\":null},{\"Name\":\"PayGPrice\",\"DataType\":\"\",\"Ordinal\":\"49\",\"ConstValue\":null},{\"Name\":\"PlanName\",\"DataType\":\"\",\"Ordinal\":\"50\",\"ConstValue\":null},{\"Name\":\"ServiceFamily\",\"DataType\":\"\",\"Ordinal\":\"51\",\"ConstValue\":null}]``` \n .create-or-alter function IngestToUsagePreliminary() { UsagePreliminaryIngest | extend Tags = todynamic(strcat(\"{\", Tags, \"}\")), ResourceId = tolower(ResourceId) } \n .create-merge table UsagePreliminary (InvoiceSectionName: string, AccountName: string, AccountOwnerId: string, SubscriptionId: string, SubscriptionName: string, ResourceGroup: string, ResourceLocation: string, Date: datetime, ProductName: string, MeterCategory: string, MeterSubCategory: string, MeterId: string, MeterName: string, MeterRegion: string, UnitOfMeasure: string, Quantity: decimal, EffectivePrice: decimal, CostInBillingCurrency: decimal, CostCenter: string, ConsumedService: string, ResourceId: string, Tags: dynamic, OfferId: string, AdditionalInfo: dynamic, ServiceInfo1: string, ServiceInfo2: string, ResourceName: string, ReservationId: string, ReservationName: string, UnitPrice: decimal, ProductOrderId: string, ProductOrderName: string, Term: string, PublisherType: string, PublisherName: string, ChargeType: string, Frequency: string, PricingModel: string, AvailabilityZone: string, BillingAccountId: string, BillingAccountName: string, BillingCurrencyCode: string, BillingPeriodStartDate: datetime, BillingPeriodEndDate: datetime, BillingProfileId: string, BillingProfileName: string, InvoiceSectionId: string, IsAzureCreditEligible: string, PartNumber: string, PayGPrice: decimal, PlanName: string, ServiceFamily: string)  \n .alter-merge table UsagePreliminaryIngest policy retention softdelete = timespan(0) recoverability = disabled \n .alter table UsagePreliminary policy update ```[{\"IsEnabled\": true, \"Source\": \"UsagePreliminaryIngest\", \"Query\": \"IngestToUsagePreliminary()\", \"IsTransactional\": true, \"PropagateIngestionProperties\": true}]``` \n .create-merge table UsageIngest (InvoiceSectionName: string, AccountName: string, AccountOwnerId: string, SubscriptionId: string, SubscriptionName: string, ResourceGroup: string, ResourceLocation: string, Date: datetime, ProductName: string, MeterCategory: string, MeterSubCategory: string, MeterId: string, MeterName: string, MeterRegion: string, UnitOfMeasure: string, Quantity: decimal, EffectivePrice: decimal, CostInBillingCurrency: decimal, CostCenter: string, ConsumedService: string, ResourceId: string, Tags: string, OfferId: string, AdditionalInfo: dynamic, ServiceInfo1: string, ServiceInfo2: string, ResourceName: string, ReservationId: string, ReservationName: string, UnitPrice: decimal, ProductOrderId: string, ProductOrderName: string, Term: string, PublisherType: string, PublisherName: string, ChargeType: string, Frequency: string, PricingModel: string, AvailabilityZone: string, BillingAccountId: string, BillingAccountName: string, BillingCurrencyCode: string, BillingPeriodStartDate: datetime, BillingPeriodEndDate: datetime, BillingProfileId: string, BillingProfileName: string, InvoiceSectionId: string, IsAzureCreditEligible: string, PartNumber: string, PayGPrice: decimal, PlanName: string, ServiceFamily: string)  \n .create-or-alter table UsageIngest ingestion csv mapping \"UsageMapping\" ```[{\"Name\":\"InvoiceSectionName\",\"DataType\":\"\",\"Ordinal\":\"0\",\"ConstValue\":null},{\"Name\":\"AccountName\",\"DataType\":\"\",\"Ordinal\":\"1\",\"ConstValue\":null},{\"Name\":\"AccountOwnerId\",\"DataType\":\"\",\"Ordinal\":\"2\",\"ConstValue\":null},{\"Name\":\"SubscriptionId\",\"DataType\":\"\",\"Ordinal\":\"3\",\"ConstValue\":null},{\"Name\":\"SubscriptionName\",\"DataType\":\"\",\"Ordinal\":\"4\",\"ConstValue\":null},{\"Name\":\"ResourceGroup\",\"DataType\":\"\",\"Ordinal\":\"5\",\"ConstValue\":null},{\"Name\":\"ResourceLocation\",\"DataType\":\"\",\"Ordinal\":\"6\",\"ConstValue\":null},{\"Name\":\"Date\",\"DataType\":\"\",\"Ordinal\":\"7\",\"ConstValue\":null},{\"Name\":\"ProductName\",\"DataType\":\"\",\"Ordinal\":\"8\",\"ConstValue\":null},{\"Name\":\"MeterCategory\",\"DataType\":\"\",\"Ordinal\":\"9\",\"ConstValue\":null},{\"Name\":\"MeterSubCategory\",\"DataType\":\"\",\"Ordinal\":\"10\",\"ConstValue\":null},{\"Name\":\"MeterId\",\"DataType\":\"\",\"Ordinal\":\"11\",\"ConstValue\":null},{\"Name\":\"MeterName\",\"DataType\":\"\",\"Ordinal\":\"12\",\"ConstValue\":null},{\"Name\":\"MeterRegion\",\"DataType\":\"\",\"Ordinal\":\"13\",\"ConstValue\":null},{\"Name\":\"UnitOfMeasure\",\"DataType\":\"\",\"Ordinal\":\"14\",\"ConstValue\":null},{\"Name\":\"Quantity\",\"DataType\":\"\",\"Ordinal\":\"15\",\"ConstValue\":null},{\"Name\":\"EffectivePrice\",\"DataType\":\"\",\"Ordinal\":\"16\",\"ConstValue\":null},{\"Name\":\"CostInBillingCurrency\",\"DataType\":\"\",\"Ordinal\":\"17\",\"ConstValue\":null},{\"Name\":\"CostCenter\",\"DataType\":\"\",\"Ordinal\":\"18\",\"ConstValue\":null},{\"Name\":\"ConsumedService\",\"DataType\":\"\",\"Ordinal\":\"19\",\"ConstValue\":null},{\"Name\":\"ResourceId\",\"DataType\":\"\",\"Ordinal\":\"20\",\"ConstValue\":null},{\"Name\":\"Tags\",\"DataType\":\"\",\"Ordinal\":\"21\",\"ConstValue\":null},{\"Name\":\"OfferId\",\"DataType\":\"\",\"Ordinal\":\"22\",\"ConstValue\":null},{\"Name\":\"AdditionalInfo\",\"DataType\":\"\",\"Ordinal\":\"23\",\"ConstValue\":null},{\"Name\":\"ServiceInfo1\",\"DataType\":\"\",\"Ordinal\":\"24\",\"ConstValue\":null},{\"Name\":\"ServiceInfo2\",\"DataType\":\"\",\"Ordinal\":\"25\",\"ConstValue\":null},{\"Name\":\"ResourceName\",\"DataType\":\"\",\"Ordinal\":\"26\",\"ConstValue\":null},{\"Name\":\"ReservationId\",\"DataType\":\"\",\"Ordinal\":\"27\",\"ConstValue\":null},{\"Name\":\"ReservationName\",\"DataType\":\"\",\"Ordinal\":\"28\",\"ConstValue\":null},{\"Name\":\"UnitPrice\",\"DataType\":\"\",\"Ordinal\":\"29\",\"ConstValue\":null},{\"Name\":\"ProductOrderId\",\"DataType\":\"\",\"Ordinal\":\"30\",\"ConstValue\":null},{\"Name\":\"ProductOrderName\",\"DataType\":\"\",\"Ordinal\":\"31\",\"ConstValue\":null},{\"Name\":\"Term\",\"DataType\":\"\",\"Ordinal\":\"32\",\"ConstValue\":null},{\"Name\":\"PublisherType\",\"DataType\":\"\",\"Ordinal\":\"33\",\"ConstValue\":null},{\"Name\":\"PublisherName\",\"DataType\":\"\",\"Ordinal\":\"34\",\"ConstValue\":null},{\"Name\":\"ChargeType\",\"DataType\":\"\",\"Ordinal\":\"35\",\"ConstValue\":null},{\"Name\":\"Frequency\",\"DataType\":\"\",\"Ordinal\":\"36\",\"ConstValue\":null},{\"Name\":\"PricingModel\",\"DataType\":\"\",\"Ordinal\":\"37\",\"ConstValue\":null},{\"Name\":\"AvailabilityZone\",\"DataType\":\"\",\"Ordinal\":\"38\",\"ConstValue\":null},{\"Name\":\"BillingAccountId\",\"DataType\":\"\",\"Ordinal\":\"39\",\"ConstValue\":null},{\"Name\":\"BillingAccountName\",\"DataType\":\"\",\"Ordinal\":\"40\",\"ConstValue\":null},{\"Name\":\"BillingCurrencyCode\",\"DataType\":\"\",\"Ordinal\":\"41\",\"ConstValue\":null},{\"Name\":\"BillingPeriodStartDate\",\"DataType\":\"\",\"Ordinal\":\"42\",\"ConstValue\":null},{\"Name\":\"BillingPeriodEndDate\",\"DataType\":\"\",\"Ordinal\":\"43\",\"ConstValue\":null},{\"Name\":\"BillingProfileId\",\"DataType\":\"\",\"Ordinal\":\"44\",\"ConstValue\":null},{\"Name\":\"BillingProfileName\",\"DataType\":\"\",\"Ordinal\":\"45\",\"ConstValue\":null},{\"Name\":\"InvoiceSectionId\",\"DataType\":\"\",\"Ordinal\":\"46\",\"ConstValue\":null},{\"Name\":\"IsAzureCreditEligible\",\"DataType\":\"\",\"Ordinal\":\"47\",\"ConstValue\":null},{\"Name\":\"PartNumber\",\"DataType\":\"\",\"Ordinal\":\"48\",\"ConstValue\":null},{\"Name\":\"PayGPrice\",\"DataType\":\"\",\"Ordinal\":\"49\",\"ConstValue\":null},{\"Name\":\"PlanName\",\"DataType\":\"\",\"Ordinal\":\"50\",\"ConstValue\":null},{\"Name\":\"ServiceFamily\",\"DataType\":\"\",\"Ordinal\":\"51\",\"ConstValue\":null}]``` \n .create function IngestToUsage() { UsageIngest | extend Tags = todynamic(strcat(\"{\", Tags, \"}\")), ResourceId = tolower(ResourceId)} \n .create-merge table Usage (InvoiceSectionName: string, AccountName: string, AccountOwnerId: string, SubscriptionId: string, SubscriptionName: string, ResourceGroup: string, ResourceLocation: string, Date: datetime, ProductName: string, MeterCategory: string, MeterSubCategory: string, MeterId: string, MeterName: string, MeterRegion: string, UnitOfMeasure: string, Quantity: decimal, EffectivePrice: decimal, CostInBillingCurrency: decimal, CostCenter: string, ConsumedService: string, ResourceId: string, Tags: dynamic, OfferId: string, AdditionalInfo: dynamic, ServiceInfo1: string, ServiceInfo2: string, ResourceName: string, ReservationId: string, ReservationName: string, UnitPrice: decimal, ProductOrderId: string, ProductOrderName: string, Term: string, PublisherType: string, PublisherName: string, ChargeType: string, Frequency: string, PricingModel: string, AvailabilityZone: string, BillingAccountId: string, BillingAccountName: string, BillingCurrencyCode: string, BillingPeriodStartDate: datetime, BillingPeriodEndDate: datetime, BillingProfileId: string, BillingProfileName: string, InvoiceSectionId: string, IsAzureCreditEligible: string, PartNumber: string, PayGPrice: decimal, PlanName: string, ServiceFamily: string) \n .alter-merge table UsageIngest policy retention softdelete = timespan(0) recoverability = disabled \n .alter table Usage policy update ```[{\"IsEnabled\": true, \"Source\": \"UsageIngest\", \"Query\": \"IngestToUsage()\", \"IsTransactional\": true, \"PropagateIngestionProperties\": true}]``` \n .add table UsagePreliminaryIngest ingestors (\"aadapp=', parameters('kustoIngestClientId'), '\") \n.add table UsagePreliminary admins (\"aadapp=', parameters('kustoIngestClientId'), '\") \n.add table UsageIngest ingestors (\"aadapp=', parameters('kustoIngestClientId'), '\") \n.add table Usage admins (\"aadapp=', parameters('kustoIngestClientId'), '\")')]"   
     },
     "resources": [
         {
@@ -604,7 +602,7 @@
             "name": "[parameters('kustoClusterName')]",
             "location": "[resourceGroup().location]",
             "sku": {
-                "name": "[if(parameters('preProduction'), 'Dev(No SLA)_Standard_D11_v2', 'Standard_D11_v2')]",
+                "name": "[if(parameters('preProduction'), 'Dev(No SLA)_Standard_E2a_v4', 'Standard_E8as_v5+1TB_PS')]",
                 "tier": "[if(parameters('preProduction'), 'Basic', 'Standard')]",
                 "capacity": "[if(parameters('preProduction'), '1', '2')]"
             },
@@ -627,69 +625,16 @@
             }
         },
         {
-            "type": "Microsoft.Kusto/Clusters/Databases/principalAssignments",
-            "apiVersion": "2019-11-09",
-            "name": "[concat(parameters('kustoClusterName'), '/', parameters('kustoDatabaseName'), '/dfingestionsp')]",
-            "dependsOn": [
-                "[parameters('kustoDatabaseName')]"
-            ],
+            "type": "Microsoft.Kusto/Clusters/Databases/Scripts",
+            "apiVersion": "2022-02-01",
+            "name": "[concat(parameters('kustoClusterName'), '/', parameters('kustoDatabaseName'), '/costmanagement')]",
             "properties": {
-                "principalId": "[parameters('kustoIngestClientId')]",
-                "role": "Admin",
-                "tenantId": "[subscription().tenantId]",
-                "principalType": "App"
-            }
-        },
-        {
-            "type": "Microsoft.Kusto/Clusters/Databases/principalAssignments",
-            "apiVersion": "2019-11-09",
-            "name": "[concat(parameters('kustoClusterName'), '/', parameters('kustoDatabaseName'), '/dfdeploysp')]",
-            "dependsOn": [
-                "[parameters('kustoDatabaseName')]"
-            ],
-            "properties": {
-                "principalId": "[reference(parameters('deploymentIdentity'), '2018-11-30').principalId]",
-                "role": "Admin",
-                "tenantId": "[subscription().tenantId]",
-                "principalType": "App"
-            }
-        },
-        {
-            "type": "Microsoft.Resources/deploymentScripts",
-            "apiVersion": "2019-10-01-preview",
-            "name": "initAzmetaDbSchema",
-            "location": "[resourceGroup().location]",
-            "kind": "AzureCLI",
-            "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                    "[parameters('deploymentIdentity')]": {}
-                }
-            },
-            "properties": {
-                "forceUpdateTag": "1",
-                "azCliVersion": "2.0.80",
-                "environmentVariables": [
-                    {
-                        "name": "AZMETA_CLUSTER",
-                        "value": "[reference(parameters('kustoClusterName'), '2019-05-15').uri]"
-                    },
-                    {
-                        "name": "AZMETA_DATABASE",
-                        "value": "[parameters('kustoDatabaseName')]"
-                    },
-                    {
-                        "name": "AZMETA_DB_INIT_URL",
-                        "value": "[concat(parameters('_artifactsLocation'), 'db_init.pyz')]"
-                    }
-                ],
-                "scriptContent": "curl -LO --retry-connrefused --retry 5 \"${AZMETA_DB_INIT_URL}\"; python3 db_init.pyz \"${AZMETA_CLUSTER}\" \"${AZMETA_DATABASE}\"",
-                "timeout": "PT30M",
-                "cleanupPreference": "OnSuccess",
-                "retentionInterval": "P1D"
+                "scriptContent": "[variables('kqlScript')]",
+                "continueOnErrors": false,
+                "forceUpdateTag": "[parameters('forceUpdateTag')]"
             },
             "dependsOn": [
-                "dfdeploysp"
+                "[parameters('kustoDatabaseName')]"
             ]
         },
         {
