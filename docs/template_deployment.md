@@ -115,11 +115,11 @@ Within 5 to 10 minutes of new data being exported in to your storage account, yo
 
 #### Final Amortized
 
-![img](/images/export-finalamortized.png)
+![img](/docs/images/export-finalamortized.png)
 
 #### Preliminary Amortized
 
-![img](/images/export-preliminaryamortized.png)
+![img](/docs/images/export-preliminaryamortized.png)
 
 ### Azure CLI
 
