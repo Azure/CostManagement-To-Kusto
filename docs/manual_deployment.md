@@ -1,12 +1,14 @@
 # Exporting Azure Cost Management Data to ADX
-
+## Prerequisites
+* A subscription with the resource providers `Microsoft.Storage`, `Microsoft.ContainerInstance`, and `Microsoft.EventGrid` already registered. [Register the providers](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types#azure-cli).
+* A resource group is required to deploy in to. [Create a resource group](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-cli#create-resource-groups). You must have 'Owner' rights on the resource group.
+  
 
 ## Process Overview
 
 At a high-level the process will be:
 
-1.  Daily export your cost data using Azure Cost Management to blob
-    storage
+1.  Daily export your cost data using Azure Cost Management to blob storage
 
 2.  When its created, load the blob automatically into ADX
 
