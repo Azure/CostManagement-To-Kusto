@@ -1,4 +1,4 @@
-# Exporting Azure Cost Management Data to ADX
+# Walkthrough: Cost Management Export to Kusto
 ## Prerequisites
 * A subscription with the resource providers `Microsoft.Storage`, `Microsoft.ContainerInstance`, and `Microsoft.EventGrid` already registered. [Register the providers](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types#azure-cli).
 * A resource group is required to deploy in to. [Create a resource group](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-cli#create-resource-groups). You must have 'Owner' rights on the resource group.
@@ -38,9 +38,6 @@ For this implementation the following are needed:
 
 4.  Cost Management Export
 
-We will walk through the setup, but you can leverage the [automated deployment](https://github.com/wpbrown/azmeta-pipeline) method created by Will Brown.
-
-You may skip ahead to section. Verify that ADF has blob reader access to the storage location, the cost management export is enabled and the ADF pipeline is published.
 
 ### Step 1: Setting up ADX
 
@@ -151,86 +148,93 @@ raw table to landing table
 
 ### Step 2: Storage Account Container
 
-On your blob storage account create a container called
-"usage-preliminary". This is where you will export the cost management
-data. 
+On your blob storage account create a container called "usage-preliminary". This is where you will export the cost management data. 
 
-![img](/docs/images/manual_deployment_1.png)
+<img alt="img" width="610px" src="/docs/images/manual_deployment_1.png" />
+
 
 ### Step 3: Grant the ADF System Assigned Identity Permission
 
-1.  We are going to use the ADF System Assigned Identity to read the blob from our storage account and to write the results to ADX. Therefore, we need to make sure it has Storage Blob Data Reader RBAC permissions on this container.
+*  We are going to use the ADF System Assigned Identity to read the blob from our storage account and to write the results to ADX. Therefore, we need to make sure it has Storage Blob Data Reader RBAC permissions on this container.
 
-![img](/docs/images/manual_deployment_2.png)
+<img alt="img" width="410px" src="/docs/images/manual_deployment_2.png" />
 
-2.  Grant the ADF System Assigned Identity Database Admin permission on your ADX Database. This is required because we are dropping extents and need more permission than just ingestor.
+*  Grant the ADF System Assigned Identity Database Admin permission on your ADX Database. This is required because we are dropping extents and need more permission than just ingestor.
 
-![img](/docs/images/manual_deployment_3.png)
+<img alt="img" width="610px" src="/docs/images/manual_deployment_3.png" />
+
 
 ### Step 4: Create the Azure Cost Management Export
 
 At this point, I recommend creating the Azure Cost Management Export, so that we'll have a csv file in storage to author the ADF pipeline mapping. If this is your first time working with an export in Azure Cost Management check out the article [here](https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal).
 
-Below you can see how we configure the Cost Management Export which will affect the values in the ADF pipeline:
+* Below you can see how we configure the Cost Management Export which will affect the values in the ADF pipeline:
 
-![img](/docs/images/manual_deployment_4.png)
+<img alt="img" width="310px" src="/docs/images/manual_deployment_4.png" />
 
-Next, click Run now to trigger the export and generate a CSV file in the storage account, which we'll to utilize during the creation of the ADF Pipeline.
 
-![img](/docs/images/manual_deployment_5.png)
+* Click Run now to trigger the export and generate a CSV file in the storage account, which we'll to utilize during the creation of the ADF Pipeline.
+
+<img alt="img" width="410px" src="/docs/images/manual_deployment_5.png" />
 
 ### Step 5: Create your Linked Services in Azure Data Factory
 
-Create two linked services in ADF. One to the storage account and one to ADX (Kusto). If you haven't done this in the past, please read the
-[Linked Service with UI](https://learn.microsoft.com/azure/data-factory/concepts-linked-services?tabs=data-factory#linked-service-with-ui) and [Management Hub](https://learn.microsoft.com/azure/data-factory/author-management-hub) articles.
+Create two linked services in ADF. One to the storage account and one to ADX (Kusto). If you haven't done this in the past, please read the [Linked Service with UI](https://learn.microsoft.com/azure/data-factory/concepts-linked-services?tabs=data-factory#linked-service-with-ui) and [Management Hub](https://learn.microsoft.com/azure/data-factory/author-management-hub) articles.
 
 You should end up with the following two Linked Services:
 
-![img](/docs/images/manual_deployment_6.png)
+<img alt="img" width="410px" src="/docs/images/manual_deployment_6.png" />
+
 
 Both linked services are using the ADF System Assigned Identity
 
-![img](/docs/images/manual_deployment_7.png)
+Blob Linked Service
+<img alt="img" width="410px" src="/docs/images/manual_deployment_7.png" />
 
-![img](/docs/images/manual_deployment_8.png)
+ADX Linked Service
+<img alt="img" width="410px" src="/docs/images/manual_deployment_8.png" />
+
 
 ### Step 6: Create the ADF Pipeline
 
 Create a new Pipeline in ADF called "ingest_usage_preliminary". You may copy the pipeline's JSON definition from Will Brown's repo or proceed defining it manually using the following instructions.
 
-1.  Add two pipeline Parameters of type String (BlobPath and BlobName)
+   * Add two pipeline Parameters of type String (BlobPath and BlobName)
 
-![img](/docs/images/manual_deployment_9.png)
+<img alt="img" width="710px" src="/docs/images/manual_deployment_9.png" />
 
-2.  Add a "Copy data" activity from the Activities pane on the left, expand "Move and Transform" section, or type Copy data into the search and double click it or drag it onto the blank canvas. I've set the "General" tab as shown:
 
-![img](/docs/images/manual_deployment_10.png)
+   * Add a "Copy data" activity from the Activities pane on the left, expand "Move and Transform" section, or type Copy data into the search and double click it or drag it onto the blank canvas. I've set the "General" tab as shown:
 
-3.  Click the **Source** tab of this activity, to create a new dataset. Choose Azure Blob Storage and CSV. Configure the dataset properties:
+<img alt="img" width="410px" src="/docs/images/manual_deployment_10.png" />
 
-![img](/docs/images/manual_deployment_11.png)
+   * Click the **Source** tab of this activity, to create a new dataset. Choose Azure Blob Storage and CSV. Configure the dataset properties:
 
-4.  Open the Source dataset and set the **Escape character** to be double quote (")
+<img alt="img" width="410px" src="/docs/images/manual_deployment_11.png" />
 
-![img](/docs/images/manual_deployment_12.png)
+   * Open the Source dataset and set the **Escape character** to be double quote (")
 
-![img](/docs/images/manual_deployment_13.png)
+<img alt="img" width="410px" src="/docs/images/manual_deployment_12.png" />
+<img alt="img" width="410px" src="/docs/images/manual_deployment_13.png" />
 
-5.  Next, set the **File path type** to **Prefix** and click Add dynamic content
 
-![img](/docs/images/manual_deployment_14.png)
+   * Next, set the **File path type** to **Prefix** and click Add dynamic content
 
-6.  In the popup box paste the following text:
+<img alt="img" width="410px" src="/docs/images/manual_deployment_14.png" />
 
+   * In the popup box paste the following text:
+
+```
 @{concat(pipeline().parameters.BlobPath, '/',
 pipeline().parameters.BlobName)}
+```
 
-7.  Next, lets configure the Sink tab of the Copy Data activity:
-- Sync dataset: Select the ADX linked service from the drop down
-- Table: "UsagePreliminaryIngest"
-- Ingestion mapping name: "UsagePreliminaryMapping"
-- Additional properties
-    - click **Add dynamic content** and paste in the following text:
+* Configure the Sink tab of the Copy Data activity:
+  - Sync dataset: Select the ADX linked service from the drop down
+  - Table: "UsagePreliminaryIngest"
+    - Ingestion mapping name: "UsagePreliminaryMapping"
+    - Additional properties
+      - click **Add dynamic content** and paste in the following text:
 
 ```
 @concat('{"tags":"["',last(split(pipeline().parameters.BlobPath, '/')),'","drop-by:', pipeline().RunId, '"]"}')
@@ -238,27 +242,27 @@ pipeline().parameters.BlobName)}
 
 *Note, this effectively adds a custom tag to our data once ingested into ADX (Kusto). The extents will be tagged a concatenated string of the BlobPath (month of the export) and the key-value "drop-by:" plus the ADF pipeline runid (unique id) which ingested the data.*
 
-8.  Next, click on the "Mapping" tab of our Copy Data activity. Choose the option to "Import schemas". Use the exported CSV created in Step 4 and paste in the BlobPath and BlobName
+   * Click on the "Mapping" tab of our Copy Data activity. Choose the option to "Import schemas". Use the exported CSV created in Step 4 and paste in the BlobPath and BlobName
 
-![img](/docs/images/manual_deployment_15.png)
+<img alt="img" width="710px" src="/docs/images/manual_deployment_15.png" />
 
-9.  Verify that the mapping comes across as you'd expect
+   * Verify that the mapping comes across as you'd expect
 
-![img](/docs/images/manual_deployment_16.png)
+<img alt="img" width="610px" src="/docs/images/manual_deployment_16.png" />
+  
+   * Under the Activities pane on the left, add the "Azure Data Explorer Command" activity by typing it into the search and double clicking it or drag it to the canvas. It should be under the "Azure Data Explorer" Activities section. Have it execute on "Success" after the "Copy Data" activity on the canvas.
 
-10. Next, under the Activities pane on the left, add the "Azure Data Explorer Command" activity by typing it into the search and double clicking it or drag it to the canvas. It should be under the "Azure Data Explorer" Activities section. Have it execute on "Success" after the "Copy Data" activity on the canvas.
+<img alt="img" width="410px" src="/docs/images/manual_deployment_17.png" />
 
-![img](/docs/images/manual_deployment_17.png)
+   * Under the General Tab give the activity a name
 
-11. Under the General Tab give the activity a name
+<img alt="img" width="410px" src="/docs/images/manual_deployment_18.png" />
 
-![img](/docs/images/manual_deployment_18.png)
+   * In the "Connection" tab select your ADX linked service
 
-12. In the "Connection" tab select your ADX linked service
+<img alt="img" width="410px" src="/docs/images/manual_deployment_19.png" />
 
-![img](/docs/images/manual_deployment_19.png)
-
-13. On the "Command" tab click **Add dynamic content** and paste the
+   * On the "Command" tab click **Add dynamic content** and paste the
     following text:
 ```
 @concat('.drop extents <|
@@ -272,39 +276,39 @@ run.*
 
 Below is what the Command dynamic content should look like.
 
-![img](/docs/images/manual_deployment_20.png)
+<img alt="img" width="410px" src="/docs/images/manual_deployment_20.png" />
 
-14. Next, add the trigger to schedule our pipeline. Click on "Add trigger" and choose "New/Edit".
+   * Next, add the trigger to schedule our pipeline. Click on "Add trigger" and choose "New/Edit".
 
-![img](/docs/images/manual_deployment_21.png)
+<img alt="img" width="410px" src="/docs/images/manual_deployment_21.png" />
 
-15. Create a new "BlobEventsTrigger" as shown:
+   * Create a new "BlobEventsTrigger" as shown:
 
-![img](/docs/images/manual_deployment_22.png)
+<img alt="img" width="410px" src="/docs/images/manual_deployment_22.png" />
 
-16. Click next until you get to the Trigger Run Parameters
--   BlobPath: @replace(trigger().outputs.body.folderPath,    'usage-preliminary/', '')
--   BlobName: @trigger().outputs.body.fileName
+   * Click next until you get to the Trigger Run Parameters
+    -   BlobPath: @replace(trigger().outputs.body.folderPath,    'usage-preliminary/', '')
+    -   BlobName: @trigger().outputs.body.fileName
 
-17. Click **Save** and **Publish all** of your changes
+   * Click **Save** and **Publish all** of your changes
 
-![img](/docs/images/manual_deployment_23.png)
+<img alt="img" width="410px" src="/docs/images/manual_deployment_23.png" />
 
 ### Testing
 
 Now it's time to test and make sure everything works as expected. Luckily this is pretty easy to test.
 
-1.  Got back to your export and execute it manually just like in Step 4
+   * Got back to your export and execute it manually just like in Step 4
 
-2.  This should automatically trigger the ADF Pipeline. In ADF studio, click Monitoring on the left menu blade, then Pipeline runs, and you should see the newly created pipeline has been Triggered. Verify it ran and if it failed, you can click on it to see why.
+   * This should automatically trigger the ADF Pipeline. In ADF studio, click Monitoring on the left menu blade, then Pipeline runs, and you should see the newly created pipeline has been Triggered. Verify it ran and if it failed, you can click on it to see why.
 
-![img](/docs/images/manual_deployment_24.png)
+<img alt="img" width="610px" src="/docs/images/manual_deployment_24.png" />
 
-3.  If the pipeline ran successfully, proceed to your ADX query url, select your database and verify the data in the curated table shows up as expected. Below I simply took 10 records from the *UsagePreliminary* table.
+   * If the pipeline ran successfully, proceed to your ADX query url, select your database and verify the data in the curated table shows up as expected. Below I simply took 10 records from the *UsagePreliminary* table.
 
-![img](/docs/images/manual_deployment_25.png)
+<img alt="img" width="510px" src="/docs/images/manual_deployment_25.png" />
 
-4.  For the logic to prevent duplication to work. Run the below command, verify the extents are tagged correctly using the following KQL    command:
+   * For the logic to prevent duplication to work. Run the below command, verify the extents are tagged correctly using the following KQL    command:
 ```
 .show table UsagePreliminary extents
 | project Tags
@@ -312,9 +316,9 @@ Now it's time to test and make sure everything works as expected. Luckily this i
 
 You should see the ADF Pipeline **RunId**, followed by the **month** (ex: 20230801-20230831)
 
-![img](/docs/images/manual_deployment_26.png)
+<img alt="img" width="410px" src="/docs/images/manual_deployment_26.png" />
 
-5.  Test the deduplication logic by rerunning the export job and making sure that the extents get replaced by new extents with a new RunID    but the same date range.
+   * Test the deduplication logic by rerunning the export job and making sure that the extents get replaced by new extents with a new RunID    but the same date range.
 
 ## Always Other Options
 
