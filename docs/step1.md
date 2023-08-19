@@ -54,4 +54,4 @@ schema.
 
 ````
 
-[Proceed to Steps 2-5](step2-5.md) ▶️
+### [Proceed to Steps 2-5](step2-5.md) ▶️
