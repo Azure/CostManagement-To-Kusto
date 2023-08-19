@@ -24,4 +24,4 @@ You should see the ADF Pipeline **RunId**, followed by the **month** (ex: 202308
 
    * Test the deduplication logic by rerunning the export job and making sure that the extents get replaced by new extents with a new RunID    but the same date range.
 
-[Proceed to Summary](manual_deployment.md#summary) 
+## [Proceed to Summary](manual_deployment.md#summary) ▶️
