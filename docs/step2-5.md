@@ -48,4 +48,4 @@ ADX Linked Service
 
 <img alt="img" width="610px" src="/docs/images/manual_deployment_8.png" />
 
-[Proceed to Step 6](step6.md) ▶️
+### [Proceed to Step 6](step6.md) ▶️
