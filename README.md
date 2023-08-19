@@ -27,4 +27,4 @@ There are two methods to deploy this architecture.
 ## Sample Results 
 
 ### Power BI Report
-![pending](docs/images/pbi1.png "pending") 
+![coming-soon](docs/images/pbi1.png "pending") 
