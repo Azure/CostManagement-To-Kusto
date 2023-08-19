@@ -1,4 +1,4 @@
-### Step 1: Setting up ADX
+# Step 1: Setting up ADX
 This setup will contain the following in ADX
 1. UsagePreliminaryIngest: Raw table where data is ingested (bronze)
 2. UsagePreliminaryMapping: Raw table CSV mapping for data ingestion
