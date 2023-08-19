@@ -92,8 +92,8 @@ Below is what the Command dynamic content should look like.
 
 | Variable Name | Value |
 | --- | --- |
-| BlobPath | ```javascript @replace(trigger().outputs.body.folderPath, 'usage-preliminary/', '')``` |
-| BlobName | ```javascript @trigger().outputs.body.fileName``` |
+| BlobPath | `javascript @replace(trigger().outputs.body.folderPath, 'usage-preliminary/', '')` |
+| BlobName | `@trigger().outputs.body.fileName` |
 
    * Click **Save** and **Publish all** of your changes
 
