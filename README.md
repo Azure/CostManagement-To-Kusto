@@ -11,11 +11,14 @@ The system consists of an Azure Data Explorer cluster, an Azure Data Factory ins
 
 ## Installation
 
-There are two methods to deploy this architecture. To implement this method via automation
+There are two methods to deploy this architecture. 
+
+1. Click to implement this using AzCLI (automatic):
 
 [<img alt="Template Deployment" width="80px" src="/docs/images/Start.jpg" />](/docs/template_deployment.md)
 
-A walkthrough of setting this up manually is also provided
+2. Click to implement this using a guided-walkthrough (manual):
+
 [<img alt="Walkthrough Deployment" width="80px" src="/docs/images/Start.jpg" />](/docs/manual_deployment.md)
 
 
