@@ -1,7 +1,9 @@
-# Export Azure Cost Management to ADX or Microsoft Fabric KQL DB
-Understanding your Azure Spend is one of the most important things you do as an Azure customer. Azure Cost Management is built into the platform to provide you insites. But we live in a world of data looking at the Azure Cost Management data in a silo may not meet your organizations needs. In those situations we can solve that need by putting your Cost Management Data into an anlytical platform like Azure Data Explorer or Fabric KQL Database. Here we can bring in whatever data is useful and run ad-hoc queries and build visualization that ties all that information together.
+# Export Azure Cost Management to Kusto
+Understanding your Azure Spend is one of the most important things you do as an Azure customer. 
 
-Hear we will show you how to utilize Azure Cost Management exports to setup an automated process that ingest the cost data into ADX or a Fabric KQL Datbase daily.
+**Azure Cost Management** is built into the platform to provide you insites. But we live in a world of data looking at the Azure Cost Management data in a silo may not meet your organizations needs. In those situations we can solve that need by putting your Cost Management data into an anlytical platform like **Azure Data Explorer** or **Microsoft Fabric KQL Database**. Here we can bring in whatever data is useful and run ad-hoc queries and build visualization that ties all that information together.
+
+In this repo, we'll show you how to utilize **Azure Cost Management** exports to setup an automated process that ingest the cost data into **ADX** or **Fabric KQL Database** daily.
 
 ## Architecture
 
