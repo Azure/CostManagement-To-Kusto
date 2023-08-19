@@ -15,10 +15,14 @@ There are two methods to deploy this architecture.
 
 1. Click to implement this using AzCLI (automatic):
 
-[<img alt="Template Deployment" width="80px" src="/docs/images/Start.jpg" />](/docs/template_deployment.md)
+[<img alt="Template Deployment" width="80px" src="/docs/images/Start.jpg" />](/docs/template_deployment.md "Click to Start automation")
 
 2. Click to implement this using a guided-walkthrough (manual):
 
-[<img alt="Walkthrough Deployment" width="80px" src="/docs/images/Start.jpg" />](/docs/manual_deployment.md)
+[<img alt="Walkthrough Deployment" width="80px" src="/docs/images/Start.jpg" />](/docs/manual_deployment.md "Click to Start walkthrough")
 
 
+## Sample Results 
+
+### Power BI Report
+![pending](docs/images/pbi1.png "pending") 
