@@ -101,7 +101,7 @@ On your blob storage account create a container called "usage-preliminary". This
 
 *  We are going to use the ADF System Assigned Identity to read the blob from our storage account and to write the results to ADX. Therefore, we need to make sure it has Storage Blob Data Reader RBAC permissions on this container.
 
-<img alt="img" width="410px" src="/docs/images/manual_deployment_2.png" />
+<img alt="img" width="610px" src="/docs/images/manual_deployment_2.png" />
 
 *  Grant the ADF System Assigned Identity Database Admin permission on your ADX Database. This is required because we are dropping extents and need more permission than just ingestor.
 
