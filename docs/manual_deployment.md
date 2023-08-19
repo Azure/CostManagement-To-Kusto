@@ -27,4 +27,4 @@ For this implementation the following are needed:
 3. Azure Data Factory (allows to easily tag extents)
 4. Cost Management Export
 
-[Proceeed to Step 1](Step1.md) ▶️
+[Proceeed to Step 1](step1.md) ▶️
