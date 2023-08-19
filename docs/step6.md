@@ -89,8 +89,11 @@ Below is what the Command dynamic content should look like.
 <img alt="img" width="610px" src="/docs/images/manual_deployment_22.png" />
 
    * Click next until you get to the Trigger Run Parameters
-    -   BlobPath: `@replace(trigger().outputs.body.folderPath, 'usage-preliminary/', '')`
-    -   BlobName: `@trigger().outputs.body.fileName`
+
+| Variable Name | Value |
+| --- | --- |
+| BlobPath | ```javascript @replace(trigger().outputs.body.folderPath, 'usage-preliminary/', '')``` |
+| BlobName | ```javascript @trigger().outputs.body.fileName``` |
 
    * Click **Save** and **Publish all** of your changes
 
