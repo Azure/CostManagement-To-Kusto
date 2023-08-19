@@ -7,9 +7,9 @@
 ## Process Overview
 
 At a high-level the process will be:
-1.  Daily export your cost data using Azure Cost Management to blob storage
-2.  When its created, load the blob automatically into ADX
-3.  Ensure you don't introduce duplicate records with your ingestion
+1. Daily export your cost data using Azure Cost Management to blob storage
+2. When its created, load the blob automatically into ADX
+3. Ensure you don't introduce duplicate records with your ingestion
 
 Eliminating duplicates is the most important part of this process. To understand why deduplication is important, you need to understand how Azure Cost Management export [works](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data).
 
@@ -17,28 +17,28 @@ Eliminating duplicates is the most important part of this process. To understand
 
 With Azure Cost Management Exports, you can export your data daily. The export places a new csv file on azure blob storage daily with all the data upto that day, month-to-date, or weekly depending on your selection. For example, on the 1^st^ of the month you'll have a csv file with one day's worth of data, and on the 20^th^ day of the month you'll have another csv file with 20 days-worth of data. However, these costs aren't finalized until the end of the month, so your 1^st^ day of the month may not match if you compare the exports of the 20^th^ day for the 1^st^ day expenditures. Therefore, if we do not handle duplicate records correctly the data will NOT make sense.
 
-1.  We can end up with a lot of duplicates for each day.
-2.  We end up keeping the wrong record instead of the latest.
-3.  An update to a record made later during the month doesn't appear (ie. missing data).
+1. We can end up with a lot of duplicates for each day.
+2. We end up keeping the wrong record instead of the latest.
+3. An update to a record made later during the month doesn't appear (ie. missing data).
 
 ## Example Implementation
 
 For this implementation the following are needed:
-1.  Azure Data Explorer (required for performance needs)
-2.  Azure Storage Account
-3.  Azure Data Factory (allows to easily tag extents)
-4.  Cost Management Export
+1. Azure Data Explorer (required for performance needs)
+2. Azure Storage Account
+3. Azure Data Factory (allows to easily tag extents)
+4. Cost Management Export
 
 
 ### Step 1: Setting up ADX
 
 This setup will contain the following in ADX
-1.  UsagePreliminaryIngest: Raw table where data is ingested (bronze)
-2.  UsagePreliminaryMapping: Raw table CSV mapping for data ingestion
-3.  UsagePreliminary: Curated table (silver) used for querying & reporting
-4.  IngestToUsagePreliminary: KQL function that does the minor transformation of the raw table and used by the update policy of the curated table
-5.  Update policy on table UsagePreliminary so data automatically flows transactionally from raw table *UsagePreliminaryIngest* into landing table *UsagePreliminary*
-6.  Retention policy on the raw table *UsagePreliminaryIngest* with a retention of 0, eliminating ADX storage costs, given data is transformed into *UsagePreliminary* immediately upon ingestion.
+1. UsagePreliminaryIngest: Raw table where data is ingested (bronze)
+2. UsagePreliminaryMapping: Raw table CSV mapping for data ingestion
+3. UsagePreliminary: Curated table (silver) used for querying & reporting
+4. IngestToUsagePreliminary: KQL function that does the minor transformation of the raw table and used by the update policy of the curated table
+5. Update policy on table UsagePreliminary so data automatically flows transactionally from raw table *UsagePreliminaryIngest* into landing table *UsagePreliminary*
+6. Retention policy on the raw table *UsagePreliminaryIngest* with a retention of 0, eliminating ADX storage costs, given data is transformed into *UsagePreliminary* immediately upon ingestion.
 
 The below script can be utilized to create everything with the correct
 schema.
