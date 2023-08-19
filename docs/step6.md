@@ -99,4 +99,4 @@ Below is what the Command dynamic content should look like.
 
 <img alt="img" width="810px" src="/docs/images/manual_deployment_23.png" />
 
-[Proceed to Testing](testing.md) ▶️
+### [Proceed to Testing](testing.md) ▶️
