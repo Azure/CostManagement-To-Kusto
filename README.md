@@ -11,6 +11,9 @@ The system consists of an Azure Data Explorer cluster, an Azure Data Factory ins
 
 ![img](docs/images/usage-pipeline.png)
 
+## Flow
+![img](docs/images/dataflow.png)
+
 ## Installation
 
 There are two methods to deploy this architecture. 
