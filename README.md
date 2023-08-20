@@ -9,7 +9,7 @@ In this repo, we'll show you how to utilize **Azure Cost Management** exports to
 
 The system consists of an Azure Data Explorer cluster, an Azure Data Factory instance, and a storage account. An admin using a command line tool or Azure Cost Management automatic export push usage data in to blob containers in the storage account. Azure Data Factory will automatically push new data in to Azure Data Explorer as it arrives in the blob containers.
 
-![img](docs/images/usage-pipeline.svg)
+![img](docs/images/usage-pipeline.png)
 
 ## Installation
 
