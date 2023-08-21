@@ -9,7 +9,7 @@ In this repo, we'll show you how to utilize **Azure Cost Management** exports to
 
 The system consists of an Azure Data Explorer cluster, an Azure Data Factory, and a Storage Account. 
 
-An admin using a command line tool or Azure Cost Management automatic export to push usage data in to blob containers in the storage account. Azure Data Factory will automatically load new data into Azure Data Explorer as it arrives in the blob containers via an Event Grid trigger.
+An admin using AzCLI or Azure Cost Management automatic export pushes usage data in to blob containers in the storage account. Azure Data Factory automatically loads new data into Azure Data Explorer as it arrives in the blob containers via an Event Grid trigger.
 
 ## Architecture
 ![img](docs/images/dataflow.png)
