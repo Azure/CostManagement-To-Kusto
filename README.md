@@ -30,4 +30,4 @@ There are two methods to deploy this architecture.
 ## Sample Results 
 
 ### Power BI Report
-![coming-soon](docs/images/pbi1.png "pending") 
+[<img alt="PBI Report" width="80px" src="/docs/images/PBIReport.png" />](/pbireport/Sample%20Azure%20Spend%20Report.pbix "Click to download report")
