@@ -188,10 +188,10 @@ You should end up with the following two Linked Services:
 
 Both linked services are using the ADF System Assigned Identity
 
-Blob Linked Service
+Blob Linked Service  
 <img alt="img" width="410px" src="/docs/images/manual_deployment_7.png" />
-
-ADX Linked Service
+  
+ADX Linked Service  
 <img alt="img" width="410px" src="/docs/images/manual_deployment_8.png" />
 
 
