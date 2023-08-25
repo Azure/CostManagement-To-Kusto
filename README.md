@@ -29,5 +29,5 @@ There are two methods to deploy this architecture.
 
 ## Sample Results 
 
-### Power BI Report
-[<img alt="PBI Report" width="80px" src="/docs/images/PBIReport.png" />](/pbireport/Sample%20Azure%20Spend%20Report.pbix "Click to download report")
+### [Power BI Report](/pbireport/Sample%20Azure%20Spend%20Report.pbix)
+[<img alt="PBI Report" width="800px" src="/docs/images/PBIReport.png" />](/pbireport/Sample%20Azure%20Spend%20Report.pbix "Click to download report")
