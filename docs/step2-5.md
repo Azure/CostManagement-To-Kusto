@@ -11,10 +11,15 @@ On your blob storage account create a container called "usage-preliminary". This
 
 <img alt="img" width="610px" src="/docs/images/manual_deployment_2.png" />
 
-*  Grant the ADF System Assigned Identity Database Admin permission on your ADX Database. This is required because we are dropping extents and need more permission than just ingestor.
+*  Grant the ADF System Assigned Identity **Table Admin** on `UsagePreliminary` and Database **Ingestor** permission on your ADX Database. Table Admin is required because we are [dropping extents](https://learn.microsoft.com/azure/data-explorer/kusto/management/drop-extents#permissions) and need more permission than just ingestor.
 
+Note: the image below shows Database Admin while testing but you can assign Ingestor instead.
 <img alt="img" width="810px" src="/docs/images/manual_deployment_3.png" />
 
+Command to grant Table Admin, replace they aadapp id with ADF. See Doc: [Manage table security roles](https://learn.microsoft.com/azure/data-explorer/kusto/management/manage-table-security-roles)
+```kql
+.add table UsagePreliminary admin ('aadapp=<ADF Managed Identity Object ID>;fabrikam.com')
+```
 
 # Step 4: Create the Azure Cost Management Export
 
