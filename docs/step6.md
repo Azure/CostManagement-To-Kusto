@@ -39,7 +39,7 @@ pipeline().parameters.BlobName)}
       - click **Add dynamic content** and paste in the following text:
 
 ```javascript
-@concat('{"tags":"["',last(split(pipeline().parameters.BlobPath, '/')),'","drop-by:', pipeline().RunId, '"]"}')
+@concat('{"tags":"[\"', last(split(pipeline().parameters.BlobPath, '/')), '\", \"drop-by:', pipeline().RunId, '\"]"}')
 ```
 
 *Note, this effectively adds a custom tag to our data once ingested into ADX (Kusto). The extents will be tagged a concatenated string of the BlobPath (month of the export) and the key-value "drop-by:" plus the ADF pipeline runid (unique id) which ingested the data.*
