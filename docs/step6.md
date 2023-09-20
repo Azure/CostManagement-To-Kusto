@@ -69,7 +69,7 @@ pipeline().parameters.BlobName)}
 ```javascript
 @concat('.drop extents <|
 .show table UsagePreliminary extents
-| extend Tags = split(Tags, "rn")
+| extend Tags = split(Tags, "\r\n")
 | where set_has_element(Tags, "', last(split(pipeline().parameters.BlobPath, '/')),'") and not(set_has_element(Tags, "drop-by:', pipeline().RunId,'"))')
 ```
 
