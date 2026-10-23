@@ -10,7 +10,7 @@ azure-identity==1.5.0
     # via azure-kusto-data
 azure-kusto-data==2.0.0
     # via -r requirements.in
-certifi==2023.7.22
+certifi==2026.10.19
     # via requests
 cffi==1.14.4
     # via cryptography
@@ -35,7 +35,9 @@ portalocker==1.7.1
 pycparser==2.20
     # via cffi
 pyjwt[crypto]==1.7.1
-    # via msal
+    # via
+    #   msal
+    #   pyjwt
 python-dateutil==2.8.1
     # via azure-kusto-data
 requests==2.31.0
